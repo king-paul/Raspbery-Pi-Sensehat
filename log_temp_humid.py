@@ -17,20 +17,23 @@ sense = SenseHat()
 # returns the local date and time on the system
 def getDateAndTime():
 	return datetime.datetime.now()
-	
+
+def getCpuTemperature():
+	cpu_temp_string = os.popen("vcgencmd measure_temp").readline()
+	cpu_temp = float(cpu_temp_string.replace("temp=","").replace("'C\n",""))
+	return(cpu_temp)
+
 def getTemperature():
-	temp = sense.get_temperature()
-	factor = 2	
+	temp = sense.get_temperature_from_humidity()
+	factor = 1.5	
 	
 	# calibrate temperature
-	'''cpu_temp_string = (os.popen('/sys/class/thermal/thermal_zone0/temp').readline())
-	print 'CPU temperature: %s' % cpu_temp_string'''
-	
-	cpu_temp = 45.1 
-	'''int(cpu_temp_string)'''
-	
+	cpu_temp =  getCpuTemperature()
+	print ('CPU temperature: {}'.format(cpu_temp))
+		
 	# calculate the actual temperature using formula
-	air_temp = temp - (cpu_temp - getHumidity()) / factor	
+	air_temp = temp - (cpu_temp - temp) / factor
+
 	return air_temp
 	
 def getHumidity():
@@ -38,16 +41,18 @@ def getHumidity():
 	return humidity
 
 # save the sensed temperature and humidity to the database
-def logTempAndHumidity(database, time, temp, humidity):
-	cursor = database.cursor()
+def logTempAndHumidity(time, temp, humidity):
+	# open the database
+	connection = sqlite.connect('data_log.db')
+	cursor = connection.cursor()
 
-	cursor.execute("INSERT INTO temp_and_humid values(datetime('now'), (?) (?))",
-	 (time, temp, humidity,))
-	cursor.commit() # commits the sql query
-	cursor.close()
+	cursor.execute("INSERT INTO temp_and_humid values(datetime('now'), (?), (?))", (temp, humidity))
+	connection.commit() # commits the sql query
+	connection.close()
 
-	print "The data has been logged."
-	
+	print('The data has been logged.')
+	sense.show_message('DATA LOGGED')
+
 def main():
 	# get data from functions
 	now = getDateAndTime()
@@ -55,14 +60,11 @@ def main():
 	humidity = getHumidity()
 
 	# print the data to the console
-	'''print "The current date and time is %s" % now.strftime("%Y-%m-%d %H:%M")
-	print "the temperature is %d degrees celsius" % temp
-	print "the humidity is %d" % humidity'''
+	'''print('The current date and time is {}'.format(now.strftime("%Y-%m-%d %H:%M")))
+	print('the temperature is {} degrees celsius'.format(temp))
+	print('the humidity is {}'.format(humidity))'''
 
-	# open the database
-	connection = sqlite.connect('data_log.db')
-
-	logTempAndHumidity(connection, now, temp, humidity)
+	logTempAndHumidity(now, temp, humidity)
 	
 def startCronJob():
 	# initialize cron
@@ -75,6 +77,8 @@ def startCronJob():
 	job.minute.every(1) # configure job to run once a minute
 	cron.write() # start the cron job
 
+	print('Cron job started.')
+
 # Begin the program
-#startCronJob()
+startCronJob()
 main()
