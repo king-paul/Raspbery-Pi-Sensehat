@@ -11,4 +11,4 @@ job = cron.new(command='/home/pi/python/assignment1/log_temp_humid.py')
 job.minute.every(1) # configure job to run once a minute
 cron.write() # start the cron job
 
-print('Temperature and Humidity logging cron job started.')
+#print('Temperature and Humidity logging cron job started.')
