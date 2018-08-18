@@ -1,18 +1,14 @@
 import sqlite3
 
+connection = sqlite3.connect('data_log.db')
+
 # display database data
 def getTempAndHumid():
+    
+    cursor = connection.cursor()
+
     # create empty 2d list
     table = []
-
-    '''print ("\nTemperature and humidty log\n"
-             "---------------------------")'''
-
-    # iterates throught the able and returns each row to row variable
-    '''for row in cursor.execute("SELECT datetime(date_time, 'localtime'), "
-                              "round(temperature, 2), round(humidity, 2)"
-                              " FROM temp_and_humid"):
-        print (row)'''
 
     # retuen first column from table
     cursor.execute("SELECT datetime(date_time, 'localtime') FROM temp_and_humid")
@@ -47,18 +43,18 @@ def printTable(table, headerString):
 
     print('|----------------------------------------------------|')
 
-connection = sqlite3.connect('data_log.db')
-cursor = connection.cursor()
+def main():
+    # read temperature and humidty from database
+    temperatureTable = getTempAndHumid()
 
-# read temperature and humidty from database
-temperatureTable = getTempAndHumid()
+    temp_humid_header = 'Temperature and humidty log\n'
+    temp_humid_header += '|----------------------------------------------------|\n'
+    temp_humid_header += '|      Date And Time       |  Temperature | Humidity |\n'
+    temp_humid_header += '|----------------------------------------------------|'
 
-temp_humid_header = 'Temperature and humidty log\n'
-temp_humid_header += '|----------------------------------------------------|\n'
-temp_humid_header += '|      Date And Time       |  Temperature | Humidity |\n'
-temp_humid_header += '|----------------------------------------------------|'
+    # print the temperature and humidity to the console
+    printTable(temperatureTable, temp_humid_header)
 
-# print the temperature and humidity to the console
-printTable(temperatureTable, temp_humid_header)
+    connection.close()
 
-connection.close()
+main()

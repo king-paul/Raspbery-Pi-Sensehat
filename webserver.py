@@ -1,32 +1,52 @@
 #!/usr/bin/env python3
 import os
-from datetime import datetime
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 from sense_hat import SenseHat
+import json
+import sqlite3
+
+# start the databse connection
+connection = sqlite3.connect('data_log.db')
+cursor = connection.cursor()
 
 app = Flask(__name__)
 
-'''Uncomment if you dont want to see console print out'''
-#import logging
-#log = logging.getLogger('werkzeug')
-#log.setLevel(logging.ERROR)
+def getTempAndHumid():
 
-def getData():
-    time = datetime.now().strftime("%H:%M:%S")
-    sense = SenseHat()
-    temp = round(sense.get_temperature(), 1)
-    return time, temp
+	# create empty json objecy
+	jsonData = [{}]
+
+	# retuen first column from table
+	cursor.execute("SELECT datetime(date_time, 'localtime') FROM temp_and_humid")
+	dateTimes = cursor.fetchall()
+	
+	# return second column from table
+	cursor.execute("SELECT round(temperature, 2) FROM temp_and_humid")
+	temps = cursor.fetchall()
+
+	# return third colum from table
+	cursor.execute("SELECT  round(humidity, 2) FROM temp_and_humid")
+	humids = cursor.fetchall()
+
+	# iterate through the table adding each row to the json object
+	for row in range(len(dateTimes)):
+		jsonData.append({
+			'date_time': dateTimes[row],
+			'temperature': temps[row],
+			'humidity': humids[row]
+		}
+		)
+		
+	return jsonData
 
 # main route 
 @app.route("/")
 def index():	
-	time, temp = getData()
-	templateData = {
-		'time': time,
-		'temp': temp
-	}
-	return render_template('index.html', **templateData)
+	data = getTempAndHumid()
+	
+	return render_template('index.html',  rows=data)
 
-if __name__ == "__main__":
+# starts the web server
+if __name__ == "__main__":	
 	host = os.popen('hostname -I').read()
-	app.run(host=host, port=80, debug=False)
+	app.run(host='10.0.0.58', port=80, debug=False)

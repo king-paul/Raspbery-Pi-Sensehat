@@ -1,9 +1,27 @@
 <!DOCTYPE html>
    <head>
-      <title>Sensor data </title>
+      <title>Sensor data</title>
    </head>
+   <style>
+       body {
+           font-family: Arial, Helvetica, sans-serif;
+       }
+   </style>
    <body>
-	<h1>Sensor Data </h1>
-    <h3> The temperature at {{ time }} is {{ temp }}°C</h3>
+    <h1>Sensehat Data From Raspberry Pi</h1>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+            <td><strong>Date and time</strong></td>
+            <td><strong>Temperature</strong></td>
+            <td><strong>Humidity</strong></td>
+        </tr>
+        {% for row in rows %}
+        <tr>
+            <td>{{row.date_time}}</td>
+            <td>{{row.temperature}}</td>
+            <td>{{row.humidity}}</td>
+        </tr>
+        {% endfor %}
+    </table>
    </body>
 </html>
