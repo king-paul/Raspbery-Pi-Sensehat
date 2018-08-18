@@ -1,12 +1,11 @@
 import sqlite3
 
 connection = sqlite3.connect('data_log.db')
+cursor = connection.cursor()
 
 # display database data
 def getTempAndHumid():
     
-    cursor = connection.cursor()
-
     # create empty 2d list
     table = []
 
@@ -29,31 +28,90 @@ def getTempAndHumid():
         table[row].append(temps[row])
         table[row].append(humids[row])
 
-    print('data read succesfully.')
+    print('read temperature and humidity')
+
+    return table
+
+def getAccelAndOrient():    
+    # Date and time of logging
+    cursor.execute("SELECT datetime(date_time, 'localtime') FROM accel_and_orient")
+    dateTimes = cursor.fetchall()
+
+    # X
+    cursor.execute("SELECT round(x, 2) FROM accel_and_orient")
+    x = cursor.fetchall()
+
+    # Y
+    cursor.execute("SELECT round(y, 2) FROM accel_and_orient")
+    y = cursor.fetchall()
+
+    # Z
+    cursor.execute("SELECT round(z, 2) FROM accel_and_orient")
+    z = cursor.fetchall()
+
+    # Pitch
+    cursor.execute("SELECT round(pitch, 2) FROM accel_and_orient")
+    pitch = cursor.fetchall()
+
+    # Roll
+    cursor.execute("SELECT round(roll, 2) FROM accel_and_orient")
+    roll = cursor.fetchall()
+
+    # Yaw
+    cursor.execute("SELECT round(yaw, 2) FROM accel_and_orient")
+    yaw = cursor.fetchall()
+
+    # create empty 2d list
+    table = []
+
+    # iterate through each list add them to the 2d table list
+    for row in range(len(dateTimes)):
+        table.append([]) # adds a new row to list
+        table[row].append(dateTimes[row])
+        table[row].append(x[row])
+        table[row].append(y[row])
+        table[row].append([row])
+        table[row].append([row])
+        table[row].append([row])
+        table[row].append([row])
 
     return table
 
 # prints data from a table to the console
-def printTable(table, headerString):
-    print(headerString)
+def printTempAndHumidTable(table):
+    print('Temperature and humidty log\n' +
+          '|----------------------------------------------------|\n' +
+          '|      Date And Time       |  Temperature | Humidity |\n' +
+          '|----------------------------------------------------|')
 
     for row in range(len(table)):
         print('| {0} |   {1}   | {2} |'.format(
             table[row][0], table[row][1], table[row][2]))
 
-    print('|----------------------------------------------------|')
+    print('|----------------------------------------------------|\n')
+
+def printAccelAndOrientTable(table):
+    print('Acceleromater and Orientation log\n' +
+          '|------------------------------------------------------------------------------|\n' +
+          '|      Date And Time       |    x     |    y    |    z    | pitch | roll | yaw |\n' +
+          '|------------------------------------------------------------------------------|'
+    )
+
+    for row in range(len(table)):
+        print('| {0} | {1} | {2} |   {3}   |  {4}  |  {5} | {6} |'.format(
+            table[row][0], table[row][1], table[row][2], table[row][3],
+            table[row][4], table[row][5], table[row][6]))
+
+    print('|------------------------------------------------------------------------------|\n')
 
 def main():
     # read temperature and humidty from database
     temperatureTable = getTempAndHumid()
-
-    temp_humid_header = 'Temperature and humidty log\n'
-    temp_humid_header += '|----------------------------------------------------|\n'
-    temp_humid_header += '|      Date And Time       |  Temperature | Humidity |\n'
-    temp_humid_header += '|----------------------------------------------------|'
+    accelerometerTable = getAccelAndOrient()
 
     # print the temperature and humidity to the console
-    printTable(temperatureTable, temp_humid_header)
+    printTempAndHumidTable(temperatureTable)
+    printAccelAndOrientTable(accelerometerTable)
 
     connection.close()
 

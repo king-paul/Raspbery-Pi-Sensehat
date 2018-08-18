@@ -11,8 +11,11 @@ from sense_hat import SenseHat
 # databse file
 dbFile = '/home/pi/python/assignment1/data_log.db'
 
-# get the sense hat object
+# open the database
+connection = sqlite.connect('data_log.db')
+cursor = connection.cursor()
 
+# get the sense hat object
 sense = SenseHat()
 # returns the local date and time on the system
 def getDateAndTime():
@@ -42,45 +45,35 @@ def getHumidity():
 	humidity = sense.get_humidity()
 	return humidity
 
+def logAccelAndOrient():
+	accel = sense.get_accelerometer_raw()
+	orient = sense.get_orientation()
+	
+	cursor.execute("INSERT INTO accel_and_orient " +
+	"VALUES(DATETIME('now'), (?), (?), (?), (?), (?), (?))",
+	(accel['x'], accel['y'], accel['z'], orient['pitch'], orient['roll'], orient['yaw']))
+
+	print('Accelerometer and Orientation successful')
+
 # save the sensed temperature and humidity to the database
 def logTempAndHumidity(temp, humidity):
-	# open the database
-	connection = sqlite.connect('data_log.db')
-	cursor = connection.cursor()
-
-	cursor.execute("INSERT INTO temp_and_humid values(datetime('now'), (?), (?))", (temp, humidity))
-	connection.commit() # commits the sql query
-	connection.close()
-
-	print('The data has been logged.')
-	sense.show_message('DATA LOGGED')
+	
+	cursor.execute("INSERT INTO temp_and_humid VALUES(DATETIME('now'), (?), (?))",
+	(temp, humidity))
 
 def main():
-	# get data from functions
-	now = getDateAndTime()
+	# get sense hat data from functions
 	temp = getTemperature()
 	humidity = getHumidity()
 
-	# print the data to the console
-	'''print('The current date and time is {}'.format(now.strftime("%Y-%m-%d %H:%M")))
-	print('the temperature is {} degrees celsius'.format(temp))
-	print('the humidity is {}'.format(humidity))'''
-
 	logTempAndHumidity(temp, humidity)
-	
-def startCronJob():
-	# initialize cron
-	cron = CronTab(user = 'pi')
-	cron.remove_all()
+	logAccelAndOrient()
 
-	# create a new cron job
-	job = cron.new(command='main')
+	connection.commit() # commits the sql query
+	connection.close()
 
-	job.minute.every(1) # configure job to run once a minute
-	cron.write() # start the cron job
-
-	print('Cron job started.')
+	print('The data has been logged')
+	sense.show_message('DATA LOGGED')	
 
 # Begin the program
-#startCronJob()
 main()
