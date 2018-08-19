@@ -3,20 +3,9 @@ import bluetooth
 import os
 from sense_hat import SenseHat
 
+from log_sense_data import getTemperature
+
 sensehat = SenseHat() # create sense hat object
-
-def getTemperature():
-    temp = sensehat.get_temperature_from_humidity()
-    factor = 1.5
-
-   # get the CPU temperature
-    cpu_temp_string = os.popen("vcgencmd measure_temp").readline()
-    cpu_temp = float(cpu_temp_string.replace("temp=","").replace("'C\n",""))
-		
-	# calculate the actual temperature using formula
-    air_temp = temp - (cpu_temp - temp) / factor
-
-    return air_temp
 
 temperature = getTemperature() # get the temperature
 

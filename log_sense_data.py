@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+# reference: http://yaab-arduino.blogspot.com/2016/08/accurate-temperature-reading-sensehat.html
 import datetime
 import os
+import time
 
 # packages needed for data logging
 import sqlite3 as sqlite
@@ -26,20 +28,44 @@ def getCpuTemperature():
 	cpu_temp_string = os.popen("vcgencmd measure_temp").readline()
 	cpu_temp = float(cpu_temp_string.replace("temp=","").replace("'C\n",""))
 	return(cpu_temp)
-       # return 0
 
 def getTemperature():
 	temp = sense.get_temperature_from_humidity()
-	factor = 1.5	
+	factor = 1.2 # this number seems to get the most acurate result	
 	
 	# calibrate temperature
 	cpu_temp =  getCpuTemperature()
-	#print ('CPU temperature: {}'.format(cpu_temp))
 		
 	# calculate the actual temperature using formula
 	air_temp = temp - (cpu_temp - temp) / factor
-
+	
 	return air_temp
+	
+def smoothTemperature(temp, timeLength):
+	# get the average of fluctuating temperatures
+	secs = 0
+	while secs < timeLength:
+		temp = get_smooth(temp) 
+		time.sleep(1)
+		secs +=1
+
+	return temp
+
+# use moving average to smooth readings
+# reference: http://yaab-arduino.blogspot.com/2016/08/accurate-temperature-reading-sensehat.html
+def get_smooth(x):
+
+	print('Smoothing out temperatures..')
+
+	if not hasattr(get_smooth, "t"):
+		get_smooth.t = [x,x,x]
+
+	get_smooth.t[2] = get_smooth.t[1]
+	get_smooth.t[1] = get_smooth.t[0]
+	get_smooth.t[0] = x
+	xs = (get_smooth.t[0]+get_smooth.t[1]+get_smooth.t[2])/3
+
+	return(xs)
 	
 def getHumidity():
 	humidity = sense.get_humidity()
@@ -73,7 +99,4 @@ def main():
 	connection.close()
 
 	print('The data has been logged')
-	sense.show_message('DATA LOGGED')	
-
-# Begin the program
-main()
+	sense.show_message('DATA LOGGED')

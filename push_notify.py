@@ -3,11 +3,12 @@ import json
 import os
 
 # import python file
-from log_temp_humid import getTemperature
+from log_sense_data import getTemperature
 
 # This is the pushbullet access token from thepushbullet account
 ACCESS_TOKEN = "o.l0fe3RaTNECme1QAnC1P3ELAuk65Ibyg"
 
+# function used in lab task 4
 def sendNotification(title, message):
 
     json_data = {"type": "note", "title": title, "body": message}
@@ -26,7 +27,7 @@ def sendNotification(title, message):
 
 def main():
     # get the ip address
-    ip_address = os.popen('hostname -I').read()
+    #ip_address = os.popen('hostname -I').read()
 
     # get the temperature
     temperature = getTemperature()
@@ -36,8 +37,11 @@ def main():
     if temperature < 20:
         message += 'Dont forget to bring a sweater!\n'
 
+    print(message)
+
     # send the norification
     sendNotification('From Raspberry Pi:', message)
 
 # start the script
+print('Calibrating temperature...')
 main()
