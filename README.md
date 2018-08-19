@@ -1,2 +1,2 @@
-# PIOT-Ass1
+# Programming the Internet Of Things - Assignment 1
 The first assignment for the course "Programming the internet of things" which us done using the Rasberry Pi and seneshat.

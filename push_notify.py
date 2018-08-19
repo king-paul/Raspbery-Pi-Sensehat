@@ -1,9 +1,10 @@
+#!/usr/bin/env python3
 import requests
 import json
 import os
 
 # import python file
-from log_sense_data import getTemperature
+from sensehat_data import getTemperature, getSmoothTemperature
 
 # This is the pushbullet access token from thepushbullet account
 ACCESS_TOKEN = "o.l0fe3RaTNECme1QAnC1P3ELAuk65Ibyg"
@@ -26,11 +27,9 @@ def sendNotification(title, message):
         .format(response.status_code))
 
 def main():
-    # get the ip address
-    #ip_address = os.popen('hostname -I').read()
-
-    # get the temperature
+    # get the room temperature as accurately as possible
     temperature = getTemperature()
+    temperature = getSmoothTemperature(temperature, 10)
 
     # create the message
     message = 'The temperature is %.2f°C\n' % temperature

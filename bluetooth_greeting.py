@@ -1,9 +1,9 @@
-
+#!/usr/bin/env python3
 import bluetooth
 import os
 from sense_hat import SenseHat
 
-from log_sense_data import getTemperature
+from sensehat_data import getTemperature
 
 sensehat = SenseHat() # create sense hat object
 
