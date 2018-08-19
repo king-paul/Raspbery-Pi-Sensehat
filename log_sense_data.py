@@ -39,7 +39,7 @@ def main():
 	sense = SenseHat()
 
 	# open the database
-	connection = sqlite.connect('data_log.db')
+	connection = sqlite.connect(dbFile)
 	cursor = connection.cursor()
 
 	# log data to SQL query
