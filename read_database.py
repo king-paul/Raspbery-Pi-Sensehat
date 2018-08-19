@@ -85,3 +85,32 @@ def getAccelAndOrient():
 		})
 		
 	return jsonData
+
+# returns the address and name of bluetooth devices found using bluetooh
+# greeting script and returns them in JSON format
+def getBluetoothDevices():
+
+	# create empty json objecy
+	jsonData = [{}]
+
+	# Date and time of logging
+	cursor.execute("SELECT datetime(date_time, 'localtime') FROM bluetooth_devices")
+	dateTimes = cursor.fetchall()
+
+	# device address
+	cursor.execute("SELECT mac_address FROM bluetooth_devices")
+	addresses = cursor.fetchall()
+
+	# device name
+	cursor.execute("SELECT device_name FROM bluetooth_devices")
+	names = cursor.fetchall()
+
+	# iterate through the table adding each row to the json object
+	for row in range(len(dateTimes)):
+		jsonData.append({
+			'date_time': dateTimes[row],
+			'address': addresses[row],
+			'name': names[row]
+		})
+
+	return jsonData

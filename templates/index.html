@@ -5,17 +5,20 @@
    <style>
        body {
            font-family: Arial, Helvetica, sans-serif;
+           background-color: darkgrey;
        }
        h1 {
            color: darkred;
        }
        table {
            text-align: center;
-       }vi 
+           background-color: white;
+       } 
        
        th {
-           background-color: black;
-           color: white;
+           background-color: #4CAF50;
+           color: black;
+           font-weight: lighter
        }
 
        tr:nth-child(even){ 
@@ -23,46 +26,59 @@
        }
    </style>
    <body>
-    <h1>Sensehat Data From Raspberry Pi</h1>
-    <h2>Temperature and humidity</h2>
-    <table border="1" cellspacing="0">
-        <tr>
-            <th>Date and time</th>
-            <th>Temperature</td>
-            <th>Humidity</td>
-        </tr>
-        {% for row in tempTable %}
-        <tr>
-            <td>{{row.date_time}}</td>
-            <td>{{row.temperature}}</td>
-            <td>{{row.humidity}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <h1>Sensehat Data From Raspberry Pi</h1>
+        <h2>Temperature and humidity</h2>
+        <table border="1" cellspacing="0">
+            <tr>
+                <th>Date and time</th>
+                <th>Temperature</td>
+                <th>Humidity</td>
+            </tr>
+            {% for row in tempTable %}
+            <tr>
+                <td>{{row.date_time}}</td>
+                <td>{{row.temperature}}</td>
+                <td>{{row.humidity}}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
-    <h2>Accelerometer and Orientation</h2>
-    <table border="1" cellspacing="0">        
-        <tr>
-            <th>Date and Time</td>
-            <th>X</th>
-            <th>Y</th>
-            <th>Z</th>
-            <th>pitch</th>
-            <th>roll</th>
-            <th>yaw</th>
-        </tr>
-        {% for row in accelTable %}
-        <tr>
-            <td>{{row.date_time}}</td>
-            <td>{{row.x}}</td>
-            <td>{{row.y}}</td>
-            <td>{{row.z}}</td>
-            <td>{{row.pitch}}</td>
-            <td>{{row.roll}}</td>
-            <td>{{row.yaw}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <h2>Accelerometer and Orientation</h2>
+        <table border="1" cellspacing="0">        
+            <tr>
+                <th>Date and Time</td>
+                <th>X</th>
+                <th>Y</th>
+                <th>Z</th>
+                <th>pitch</th>
+                <th>roll</th>
+                <th>yaw</th>
+            </tr>
+            {% for row in accelTable %}
+            <tr>
+                <td>{{row.date_time}}</td>
+                <td>{{row.x}}</td>
+                <td>{{row.y}}</td>
+                <td>{{row.z}}</td>
+                <td>{{row.pitch}}</td>
+                <td>{{row.roll}}</td>
+                <td>{{row.yaw}}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
+        <h2>Bluetooth Devices</h2>
+        <table border="1" cellspacing="0">
+            <th>Date and Time</th>
+            <th>Mac Address</th>
+            <th>Device Name</th>
+            {% for row in bluetoothTable %}
+            <tr>
+                <td>{{row.date_time}}</td>
+                <td>{{row.address}}</td>
+                <td>{{row.name}}</td>
+            </tr>
+            {% endfor %}
+        </table>
    </body>
 </html>
